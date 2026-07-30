@@ -143,6 +143,11 @@ export const AdminModal: React.FC = () => {
   const [profName, setProfName] = useState(profile.name || '');
   const [profRole, setProfRole] = useState(profile.role || '');
   const [profSubtitle, setProfSubtitle] = useState(profile.subtitle || '');
+  const [profHeroTagline, setProfHeroTagline] = useState(profile.heroTagline || 'Chiko Arche • 치코 일러스트레이터');
+  const [profMainTitle, setProfMainTitle] = useState(profile.mainTitle || 'Character\nIllustrator.');
+  const [profHeroImageUrl, setProfHeroImageUrl] = useState(profile.heroImageUrl || '');
+  const [profHeroImageTitle, setProfHeroImageTitle] = useState(profile.heroImageTitle || 'Cyber Fantasy Heroine');
+  const [profHeroImageSub, setProfHeroImageSub] = useState(profile.heroImageSub || 'Main Title Key Visual / 2025');
   const [profBioText, setProfBioText] = useState(profile.bioLines ? profile.bioLines.join('\n') : '');
   const [profResponseTime, setProfResponseTime] = useState(profile.responseTime || '24시간 이내');
   const [profAvatarUrl, setProfAvatarUrl] = useState(profile.avatarUrl || '');
@@ -167,6 +172,11 @@ export const AdminModal: React.FC = () => {
       setProfName(profile.name || '');
       setProfRole(profile.role || '');
       setProfSubtitle(profile.subtitle || '');
+      setProfHeroTagline(profile.heroTagline || 'Chiko Arche • 치코 일러스트레이터');
+      setProfMainTitle(profile.mainTitle || 'Character\nIllustrator.');
+      setProfHeroImageUrl(profile.heroImageUrl || '');
+      setProfHeroImageTitle(profile.heroImageTitle || 'Cyber Fantasy Heroine');
+      setProfHeroImageSub(profile.heroImageSub || 'Main Title Key Visual / 2025');
       setProfBioText(profile.bioLines ? profile.bioLines.join('\n') : '');
       setProfResponseTime(profile.responseTime || '24시간 이내');
       setProfAvatarUrl(profile.avatarUrl || '');
@@ -204,6 +214,22 @@ export const AdminModal: React.FC = () => {
     }
   };
 
+  const handleHeroImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const compressed = await compressAndLoadImage(file, 1920, 0.85);
+      setProfHeroImageUrl(compressed);
+    } catch (err: any) {
+      alert('메인 대표 이미지 업로드 실패: ' + (err.message || '파일을 읽을 수 없습니다.'));
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -227,6 +253,11 @@ export const AdminModal: React.FC = () => {
       name: profName,
       role: profRole,
       subtitle: profSubtitle,
+      heroTagline: profHeroTagline,
+      mainTitle: profMainTitle,
+      heroImageUrl: profHeroImageUrl,
+      heroImageTitle: profHeroImageTitle,
+      heroImageSub: profHeroImageSub,
       bioLines: bioLinesArray.length > 0 ? bioLinesArray : profile.bioLines,
       responseTime: profResponseTime,
       avatarUrl: profAvatarUrl,
@@ -246,7 +277,7 @@ export const AdminModal: React.FC = () => {
       },
     });
 
-    alert('작가 프로필 및 소개글 정보가 성공적으로 반영되었습니다!');
+    alert('메인 페이지 및 작가 프로필 정보가 성공적으로 반영되었습니다!');
   };
 
   if (!isAdminOpen) return null;
@@ -480,12 +511,12 @@ export const AdminModal: React.FC = () => {
             onClick={() => setActiveTab('profile')}
             className={`px-4 py-2 rounded-sm text-xs font-serif transition-all flex items-center gap-1.5 ${
               activeTab === 'profile'
-                ? 'bg-white text-black font-bold'
+                ? 'bg-amber-300 text-black font-bold'
                 : 'bg-[#1A1A1F] text-white/60 hover:text-white border border-white/10'
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Profile Specs</span>
+            <span>Main & Profile (메인 대문 & 프로필)</span>
           </button>
 
           <button
@@ -925,7 +956,7 @@ export const AdminModal: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: Artist Profile Editor */}
+          {/* TAB 2: Artist Profile & Main Hero Editor */}
           {activeTab === 'profile' && (
             <form id="profile-form" onSubmit={handleSaveProfile} className="space-y-6">
               
@@ -933,16 +964,144 @@ export const AdminModal: React.FC = () => {
               <div className="sticky top-0 z-20 p-4 rounded-lg bg-amber-400/10 border border-amber-400/30 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shadow-lg">
                 <div className="flex items-center gap-2 text-xs text-amber-200">
                   <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
-                  <span className="font-semibold">작가 프로필 및 소개글 수정 중</span>
-                  <span className="text-white/40 hidden sm:inline">| 작가명, 인사말, 소개글, 연락처 등을 수정한 뒤 저장 버튼을 누르세요.</span>
+                  <span className="font-semibold">메인 대문 화면 및 작가 프로필 수정 중</span>
+                  <span className="text-white/40 hidden sm:inline">| 메인 제목, 대표 이미지, 작가 소개글 등을 수정한 뒤 저장 버튼을 누르세요.</span>
                 </div>
                 <button
                   type="submit"
                   className="px-5 py-2 rounded-sm bg-amber-300 hover:bg-amber-200 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 shrink-0"
                 >
                   <Check className="w-4 h-4" />
-                  <span>💾 프로필 변경사항 저장</span>
+                  <span>💾 메인 & 프로필 변경사항 저장</span>
                 </button>
+              </div>
+
+              {/* 0. Main Hero Section Config (메인 대문 화면 설정) */}
+              <div className="p-5 rounded-lg bg-[#1A1A1F] border border-amber-400/30 space-y-4">
+                <h4 className="font-serif text-sm text-amber-300 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>메인 대문 화면 (Hero Section) 설정</span>
+                </h4>
+                <p className="text-[11px] text-white/50">
+                  방문자가 홈페이지 메인에 접속했을 때 가장 먼저 보는 헤드라인 문구와 우측 대표 시그니처 아트워크 이미지를 직접 변경할 수 있습니다.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
+                      상단 태그라인 (Eyebrow Tagline)
+                    </label>
+                    <input
+                      type="text"
+                      value={profHeroTagline}
+                      onChange={(e) => setProfHeroTagline(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white"
+                      placeholder="Chiko Arche • 치코 일러스트레이터"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
+                      대표작 서브 타이틀 (Artwork Caption)
+                    </label>
+                    <input
+                      type="text"
+                      value={profHeroImageSub}
+                      onChange={(e) => setProfHeroImageSub(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white"
+                      placeholder="Main Title Key Visual / 2025"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
+                      메인 큰 제목 (Main Headline - Enter로 줄바꿈)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={profMainTitle}
+                      onChange={(e) => setProfMainTitle(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white resize-y font-serif"
+                      placeholder={`Character\nIllustrator.`}
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] uppercase tracking-wider text-white/60 block mb-1">
+                      메인 소개 문구 (Main Subtitle)
+                    </label>
+                    <input
+                      type="text"
+                      value={profSubtitle}
+                      onChange={(e) => setProfSubtitle(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white"
+                      placeholder="Capturing emotions in characters for gaming, virtual contents, and subculture projects."
+                    />
+                  </div>
+                </div>
+
+                {/* Main Hero Representative Image */}
+                <div className="pt-3 border-t border-white/10 space-y-3">
+                  <label className="text-[10px] uppercase tracking-wider text-white/60 block">
+                    메인 우측 대표 아트워크 이미지 (Main Key Visual Image)
+                  </label>
+                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-4">
+                    <div className="w-20 h-28 rounded-md overflow-hidden border border-white/20 bg-[#0A0A0B] shrink-0">
+                      {profHeroImageUrl ? (
+                        <img
+                          src={profHeroImageUrl}
+                          alt="Main Hero preview"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover object-top"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/20 text-[10px] text-center p-1">
+                          기본 이미지
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-2 w-full">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[9px] uppercase tracking-wider text-white/50 block mb-1">대표작 제목</label>
+                          <input
+                            type="text"
+                            value={profHeroImageTitle}
+                            onChange={(e) => setProfHeroImageTitle(e.target.value)}
+                            placeholder="Cyber Fantasy Heroine"
+                            className="w-full px-3 py-1.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] uppercase tracking-wider text-white/50 block mb-1">이미지 URL 직접 입력 또는 파일 선택</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={profHeroImageUrl}
+                              onChange={(e) => setProfHeroImageUrl(e.target.value)}
+                              placeholder="https://..."
+                              className="flex-1 px-3 py-1.5 rounded-sm bg-[#0A0A0B] border border-white/10 text-xs text-white"
+                            />
+                            <label className="px-3 py-1.5 rounded-sm bg-amber-300 hover:bg-amber-200 text-black text-xs font-bold cursor-pointer shrink-0 flex items-center gap-1.5 shadow-sm">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>컴퓨터에서 선택</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleHeroImageFileUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-white/40">
+                        내 컴퓨터의 고화질 이미지(PNG/JPG)를 업로드하거나 웹 이미지 링크를 넣어 대표 그림을 교체할 수 있습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* 1. Basic Info & Profile Picture */}

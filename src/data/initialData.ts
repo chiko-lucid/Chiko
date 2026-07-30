@@ -7,7 +7,12 @@ import gameKeyArtImg from '../assets/images/game_key_art_1785400308674.jpg'; // 
 export const initialArtistProfile: ArtistProfile = {
   name: '치코 (Chiko)',
   role: 'Character Illustrator & Live2D Designer',
-  subtitle: '감정과 서사를 담은 캐릭터를 그립니다.',
+  subtitle: 'Capturing emotions in characters for gaming, virtual contents, and subculture projects with over 5 years of professional experience.',
+  heroTagline: 'Chiko Arche • 치코 일러스트레이터',
+  mainTitle: 'Character Illustrator.',
+  heroImageUrl: heroArtworkImg,
+  heroImageTitle: 'Cyber Fantasy Heroine',
+  heroImageSub: 'Main Title Key Visual / 2025',
   bioLines: [
     '안녕하세요! 캐릭터 디자인과 일러스트레이션을 전적으로 진행하는 프리랜서 일러스트레이터 치코(Chiko)입니다.',
     '트렌디한 색감, 몰입감 넘치는 매력적인 캐릭터성, 섬세한 빛과 그림자 레이어링을 가장 중요하게 생각합니다.',

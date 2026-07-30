@@ -1,6 +1,7 @@
 import React from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { ArrowDownRight, Sparkles, ShieldCheck, MessageCircle } from 'lucide-react';
+import heroArtworkImg from '../assets/images/hero_artwork_1785400284201.jpg';
 
 export const Hero: React.FC = () => {
   const { profile } = usePortfolio();
@@ -24,14 +25,13 @@ export const Hero: React.FC = () => {
             {/* Category Eyebrow */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-[0.25em] text-white/60 font-semibold">
               <Sparkles className="w-3 h-3 text-white/80" />
-              <span>Chiko Arche &bull; 치코 일러스트레이터</span>
+              <span>{profile.heroTagline || 'Chiko Arche • 치코 일러스트레이터'}</span>
             </div>
 
             {/* Main Headline */}
             <div className="space-y-4">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif leading-[1.05] tracking-tighter text-white">
-                Character <br />
-                <span className="italic text-white/50">Illustrator.</span>
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-serif leading-[1.05] tracking-tighter text-white whitespace-pre-line">
+                {profile.mainTitle || 'Character\nIllustrator.'}
               </h1>
               <p className="text-white/60 text-sm sm:text-base font-light leading-relaxed max-w-xl">
                 {profile.subtitle || 'Capturing emotions in characters for gaming, virtual contents, and subculture projects with over 5 years of professional experience.'}
@@ -145,7 +145,7 @@ export const Hero: React.FC = () => {
               <div className="relative bg-[#0F0F12] rounded-2xl p-3 border border-white/10 shadow-2xl overflow-hidden">
                 <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#1A1A1F]">
                   <img
-                    src="/src/assets/images/hero_artwork_1785400284201.jpg"
+                    src={profile.heroImageUrl || heroArtworkImg}
                     alt="Representative Artwork"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top transform group-hover:scale-105 transition duration-700 ease-out"
@@ -164,8 +164,8 @@ export const Hero: React.FC = () => {
                   <div className="absolute bottom-4 left-4 right-4 p-4 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-serif text-base text-white">Cyber Fantasy Heroine</h3>
-                        <p className="text-[11px] text-white/50">Main Title Key Visual / 2025</p>
+                        <h3 className="font-serif text-base text-white">{profile.heroImageTitle || 'Cyber Fantasy Heroine'}</h3>
+                        <p className="text-[11px] text-white/50">{profile.heroImageSub || 'Main Title Key Visual / 2025'}</p>
                       </div>
                       <span className="px-2.5 py-1 bg-white/10 border border-white/20 text-[9px] text-white font-bold tracking-widest uppercase rounded-sm">
                         Best Work

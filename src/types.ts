@@ -72,6 +72,11 @@ export interface ArtistProfile {
   name: string;
   role: string;
   subtitle: string;
+  heroTagline?: string;
+  mainTitle?: string;
+  heroImageUrl?: string;
+  heroImageTitle?: string;
+  heroImageSub?: string;
   bioLines: string[];
   experienceYears: number;
   completedCommissions: number;
