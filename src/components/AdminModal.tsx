@@ -18,8 +18,79 @@ import {
   ArrowUp,
   ArrowDown,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import { PortfolioCategory, PortfolioItem } from '../types';
+
+// Helper function to compress and load image safely to prevent localStorage QuotaExceeded errors
+const compressAndLoadImage = (file: File, maxDim = 1920, quality = 0.85): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith('image/')) {
+      reject(new Error('선택한 파일이 올바른 이미지 형식이 아닙니다 (PNG, JPG, WEBP 지원).'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('파일 읽기 실패'));
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      if (!dataUrl) {
+        reject(new Error('파일 데이터가 비어있습니다.'));
+        return;
+      }
+
+      const img = new Image();
+      img.onerror = () => {
+        resolve(dataUrl);
+      };
+
+      img.onload = () => {
+        try {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(dataUrl);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert transparent images or photos smoothly
+          const outputType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+          let compressed = canvas.toDataURL(outputType, quality);
+
+          if (!compressed) {
+            compressed = dataUrl;
+          }
+
+          resolve(compressed);
+        } catch (err) {
+          resolve(dataUrl);
+        }
+      };
+
+      img.src = dataUrl;
+    };
+
+    reader.readAsDataURL(file);
+  });
+};
 
 export const AdminModal: React.FC = () => {
   const {
@@ -62,6 +133,7 @@ export const AdminModal: React.FC = () => {
   const [coverIndex, setCoverIndex] = useState<number>(0);
   const [urlInput, setUrlInput] = useState<string>('');
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   // New FAQ State
   const [newQuestion, setNewQuestion] = useState('');
@@ -116,16 +188,20 @@ export const AdminModal: React.FC = () => {
     }
   }, [profile, isAdminOpen]);
 
-  const handleAvatarFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setProfAvatarUrl(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+
+    try {
+      setIsUploading(true);
+      const compressed = await compressAndLoadImage(file, 800, 0.9);
+      setProfAvatarUrl(compressed);
+    } catch (err: any) {
+      alert('프로필 이미지 업로드 실패: ' + (err.message || '파일을 읽을 수 없습니다.'));
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -192,27 +268,37 @@ export const AdminModal: React.FC = () => {
     setUrlInput('');
   };
 
-  // Computer Local File Upload Handler
-  const handleFileUpload = (files: FileList | null) => {
+  // Computer Local File Upload Handler with Canvas Compression & Error Handling
+  const handleFileUpload = async (files: FileList | null, inputEl?: HTMLInputElement | null) => {
     if (!files || files.length === 0) return;
 
+    setIsUploading(true);
     const fileArray = Array.from(files);
-    const newBase64Images: string[] = [];
-    let loadedCount = 0;
+    const newCompressedImages: string[] = [];
+    let failCount = 0;
 
-    fileArray.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          newBase64Images.push(event.target.result as string);
-        }
-        loadedCount++;
-        if (loadedCount === fileArray.length) {
-          setImagesList((prev) => [...prev, ...newBase64Images]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    for (const file of fileArray) {
+      try {
+        const compressed = await compressAndLoadImage(file, 1920, 0.85);
+        newCompressedImages.push(compressed);
+      } catch (err) {
+        console.error('File upload error:', err);
+        failCount++;
+      }
+    }
+
+    if (newCompressedImages.length > 0) {
+      setImagesList((prev) => [...prev, ...newCompressedImages]);
+    }
+
+    if (failCount > 0) {
+      alert(`${failCount}개 이미지 최적화 업로드에 실패했습니다. 올바른 이미지 파일인지 확인해주세요.`);
+    }
+
+    setIsUploading(false);
+    if (inputEl) {
+      inputEl.value = '';
+    }
   };
 
   const handleAddUrlImage = () => {
@@ -435,7 +521,7 @@ export const AdminModal: React.FC = () => {
             <div className="space-y-8">
               
               {/* Form: Add or Edit Work */}
-              <form onSubmit={handleSaveWork} className="p-5 rounded-lg bg-[#1A1A1F] border border-white/10 space-y-5">
+              <form id="work-form" onSubmit={handleSaveWork} className="p-5 rounded-lg bg-[#1A1A1F] border border-white/10 space-y-5">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <h3 className="font-serif text-sm text-white flex items-center gap-2">
                     {editingWorkId ? (
@@ -577,14 +663,25 @@ export const AdminModal: React.FC = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        onChange={(e) => handleFileUpload(e.target.files)}
-                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                        disabled={isUploading}
+                        onChange={(e) => handleFileUpload(e.target.files, e.target)}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10 disabled:cursor-not-allowed"
                       />
-                      <Upload className="w-5 h-5 text-white/70 mb-1" />
-                      <span className="text-xs font-semibold text-white">Choose Images from Computer</span>
-                      <span className="text-[10px] text-white/40 mt-0.5 font-light">
-                        Click or drag & drop files here (Supports PNG, JPG, WEBP)
-                      </span>
+                      {isUploading ? (
+                        <div className="flex flex-col items-center justify-center py-1">
+                          <Loader2 className="w-5 h-5 text-amber-300 animate-spin mb-1" />
+                          <span className="text-xs font-semibold text-amber-300">이미지 변환 및 최적화 중...</span>
+                          <span className="text-[10px] text-white/50">고화질 파일 압축 처리 중입니다</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5 text-white/70 mb-1" />
+                          <span className="text-xs font-semibold text-white">Choose Images from Computer (내 컴퓨터 그림 선택)</span>
+                          <span className="text-[10px] text-white/40 mt-0.5 font-light">
+                            클릭하거나 그림 파일을 이곳에 드래그&드롭하세요 (PNG, JPG, WEBP 지원)
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     {/* Option B: External Image URL Add */}
@@ -830,8 +927,24 @@ export const AdminModal: React.FC = () => {
 
           {/* TAB 2: Artist Profile Editor */}
           {activeTab === 'profile' && (
-            <form onSubmit={handleSaveProfile} className="space-y-6">
+            <form id="profile-form" onSubmit={handleSaveProfile} className="space-y-6">
               
+              {/* Top Quick Save Sticky Action Bar */}
+              <div className="sticky top-0 z-20 p-4 rounded-lg bg-amber-400/10 border border-amber-400/30 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                <div className="flex items-center gap-2 text-xs text-amber-200">
+                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span className="font-semibold">작가 프로필 및 소개글 수정 중</span>
+                  <span className="text-white/40 hidden sm:inline">| 작가명, 인사말, 소개글, 연락처 등을 수정한 뒤 저장 버튼을 누르세요.</span>
+                </div>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-sm bg-amber-300 hover:bg-amber-200 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 shrink-0"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>💾 프로필 변경사항 저장</span>
+                </button>
+              </div>
+
               {/* 1. Basic Info & Profile Picture */}
               <div className="p-5 rounded-lg bg-[#1A1A1F] border border-white/10 space-y-4">
                 <h4 className="font-serif text-sm text-amber-300 flex items-center gap-2">
@@ -1212,7 +1325,7 @@ export const AdminModal: React.FC = () => {
         </div>
 
         {/* Footer actions */}
-        <div className="px-6 py-4 bg-[#0A0A0B] border-t border-white/10 flex items-center justify-between">
+        <div className="px-6 py-4 bg-[#0A0A0B] border-t border-white/10 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <button
             onClick={() => {
               if (confirm('Reset to initial sample portfolio data?')) {
@@ -1226,12 +1339,37 @@ export const AdminModal: React.FC = () => {
             <span>Reset Demo Data</span>
           </button>
 
-          <button
-            onClick={() => setIsAdminOpen(false)}
-            className="px-5 py-2 rounded-sm bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-neutral-200 transition-colors"
-          >
-            Close
-          </button>
+          <div className="flex items-center gap-3">
+            {activeTab === 'profile' && (
+              <button
+                type="submit"
+                form="profile-form"
+                className="px-6 py-2 rounded-sm bg-amber-300 hover:bg-amber-200 text-black font-bold text-xs uppercase tracking-widest transition-colors shadow-lg flex items-center gap-1.5"
+              >
+                <Check className="w-4 h-4" />
+                <span>💾 작가 프로필 변경사항 저장</span>
+              </button>
+            )}
+
+            {activeTab === 'works' && (
+              <button
+                type="submit"
+                form="work-form"
+                className="px-5 py-2 rounded-sm bg-amber-300 hover:bg-amber-200 text-black font-bold text-xs uppercase tracking-widest transition-colors shadow-lg flex items-center gap-1.5"
+              >
+                <Check className="w-4 h-4" />
+                <span>{editingWorkId ? '💾 작품 수정사항 저장' : '➕ 신규 작품 등록'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsAdminOpen(false)}
+              className="px-5 py-2 rounded-sm bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-widest transition-colors border border-white/20"
+            >
+              Close
+            </button>
+          </div>
         </div>
 
       </div>

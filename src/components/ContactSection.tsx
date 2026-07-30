@@ -107,7 +107,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </p>
 
               <div className="space-y-3">
-                {profile.socialLinks.email && (
+                {profile.socialLinks?.email && (
                   <a
                     href={`mailto:${profile.socialLinks.email}`}
                     className="p-3.5 rounded-sm bg-[#1A1A1F] border border-white/10 hover:border-white/20 text-xs text-white/80 flex items-center justify-between group transition-all"
@@ -125,7 +125,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </a>
                 )}
 
-                {profile.socialLinks.openKakao && (
+                {profile.socialLinks?.openKakao && (
                   <a
                     href={profile.socialLinks.openKakao}
                     target="_blank"
@@ -145,7 +145,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </a>
                 )}
 
-                {profile.socialLinks.twitter && (
+                {profile.socialLinks?.twitter && (
                   <a
                     href={profile.socialLinks.twitter}
                     target="_blank"
@@ -165,7 +165,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </a>
                 )}
 
-                {profile.socialLinks.googleForm && (
+                {profile.socialLinks?.googleForm && (
                   <a
                     href={profile.socialLinks.googleForm}
                     target="_blank"

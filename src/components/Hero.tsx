@@ -91,7 +91,7 @@ export const Hero: React.FC = () => {
             <div className="flex items-center gap-4 pt-1">
               <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-semibold">Links:</span>
               <div className="flex items-center gap-3">
-                {profile.socialLinks.twitter && (
+                {profile.socialLinks?.twitter && (
                   <a
                     href={profile.socialLinks.twitter}
                     target="_blank"
@@ -101,7 +101,7 @@ export const Hero: React.FC = () => {
                     Twitter
                   </a>
                 )}
-                {profile.socialLinks.pixiv && (
+                {profile.socialLinks?.pixiv && (
                   <a
                     href={profile.socialLinks.pixiv}
                     target="_blank"
@@ -111,7 +111,7 @@ export const Hero: React.FC = () => {
                     Pixiv
                   </a>
                 )}
-                {profile.socialLinks.artstation && (
+                {profile.socialLinks?.artstation && (
                   <a
                     href={profile.socialLinks.artstation}
                     target="_blank"
@@ -121,7 +121,7 @@ export const Hero: React.FC = () => {
                     ArtStation
                   </a>
                 )}
-                {profile.socialLinks.openKakao && (
+                {profile.socialLinks?.openKakao && (
                   <a
                     href={profile.socialLinks.openKakao}
                     target="_blank"

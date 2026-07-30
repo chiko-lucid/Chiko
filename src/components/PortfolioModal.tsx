@@ -176,7 +176,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
 
               {/* Tags */}
               <div className="flex flex-wrap gap-1.5">
-                {work.tags.map((tag, idx) => (
+                {(work.tags || []).map((tag, idx) => (
                   <span
                     key={idx}
                     className="px-2.5 py-0.5 rounded-sm bg-[#1A1A1F] border border-white/10 text-[10px] uppercase tracking-wider text-white/60"
@@ -200,7 +200,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-white/70 font-light">
                   <Wrench className="w-3.5 h-3.5 text-white/60 shrink-0" />
-                  <span>Software: <strong className="text-white font-normal">{work.tools.join(', ')}</strong></span>
+                  <span>Software: <strong className="text-white font-normal">{(work.tools || []).join(', ')}</strong></span>
                 </div>
                 {work.purpose && (
                   <div className="col-span-2 flex items-center gap-2 text-white/70 font-light">

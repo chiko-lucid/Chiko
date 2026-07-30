@@ -98,7 +98,12 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_WORKS);
-    return saved ? JSON.parse(saved) : initialPortfolioItems;
+    if (!saved) return initialPortfolioItems;
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return initialPortfolioItems;
+    }
   });
 
   const [services] = useState<ServiceItem[]>(initialServices);
@@ -106,17 +111,32 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [reviews, setReviews] = useState<ReviewItem[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_REVIEWS);
-    return saved ? JSON.parse(saved) : initialReviews;
+    if (!saved) return initialReviews;
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return initialReviews;
+    }
   });
 
   const [faqs, setFaqs] = useState<FAQItem[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_FAQS);
-    return saved ? JSON.parse(saved) : initialFAQs;
+    if (!saved) return initialFAQs;
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return initialFAQs;
+    }
   });
 
   const [inquiries, setInquiries] = useState<InquiryForm[]>(() => {
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_INQUIRIES);
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [];
+    }
   });
 
   const [theme, setThemeState] = useState<ThemeMode>(() => {
@@ -128,25 +148,45 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedWorkForInquiry, setSelectedWorkForInquiry] = useState<PortfolioItem | null>(null);
 
-  // Sync with localStorage
+  // Sync with localStorage safely
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(profile));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_PROFILE, JSON.stringify(profile));
+    } catch (e) {
+      console.warn('Failed to save profile to localStorage:', e);
+    }
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_WORKS, JSON.stringify(portfolioItems));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_WORKS, JSON.stringify(portfolioItems));
+    } catch (e) {
+      console.warn('Failed to save works to localStorage:', e);
+    }
   }, [portfolioItems]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_FAQS, JSON.stringify(faqs));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_FAQS, JSON.stringify(faqs));
+    } catch (e) {
+      console.warn('Failed to save FAQs to localStorage:', e);
+    }
   }, [faqs]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_REVIEWS, JSON.stringify(reviews));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_REVIEWS, JSON.stringify(reviews));
+    } catch (e) {
+      console.warn('Failed to save reviews to localStorage:', e);
+    }
   }, [reviews]);
 
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY_INQUIRIES, JSON.stringify(inquiries));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_INQUIRIES, JSON.stringify(inquiries));
+    } catch (e) {
+      console.warn('Failed to save inquiries to localStorage:', e);
+    }
   }, [inquiries]);
 
   const setTheme = (mode: ThemeMode) => {

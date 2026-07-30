@@ -35,7 +35,7 @@ export const PortfolioGallery: React.FC<PortfolioGalleryProps> = ({
       const matchesSearch =
         searchQuery.trim() === '' ||
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.tags || []).some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (item.client && item.client.toLowerCase().includes(searchQuery.toLowerCase()));
 
       return matchesCategory && matchesSearch;
@@ -175,7 +175,7 @@ export const PortfolioGallery: React.FC<PortfolioGalleryProps> = ({
                   </div>
 
                   <div className="flex flex-wrap gap-1 mt-3">
-                    {work.tags.slice(0, 2).map((t, i) => (
+                    {(work.tags || []).slice(0, 2).map((t, i) => (
                       <span
                         key={i}
                         className="px-2 py-0.5 rounded-sm bg-white/5 border border-white/10 text-[9px] uppercase tracking-wider text-white/40"

@@ -104,7 +104,7 @@ export const BestWorks: React.FC<BestWorksProps> = ({ onSelectWork }) => {
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5 mt-3">
-                  {work.tags.slice(0, 3).map((tag, idx) => (
+                  {(work.tags || []).slice(0, 3).map((tag, idx) => (
                     <span
                       key={idx}
                       className="px-2 py-0.5 rounded-sm bg-white/5 border border-white/10 text-[9px] uppercase tracking-wider text-white/50"

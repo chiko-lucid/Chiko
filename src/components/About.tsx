@@ -44,7 +44,7 @@ export const About: React.FC = () => {
 
               {/* Main Bio Text */}
               <div className="space-y-3 text-white/70 text-sm font-light leading-relaxed">
-                {profile.bioLines.map((line, idx) => (
+                {(profile.bioLines || []).map((line, idx) => (
                   <p key={idx}>{line}</p>
                 ))}
               </div>
@@ -87,7 +87,7 @@ export const About: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill, idx) => (
+                {(profile.skills || []).map((skill, idx) => (
                   <div
                     key={idx}
                     className="px-3 py-1.5 rounded-sm bg-[#1A1A1F] border border-white/10 text-[11px] font-medium text-white/80 flex items-center gap-2"
@@ -114,7 +114,7 @@ export const About: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {profile.commercialScopes.map((scope, idx) => (
+                {(profile.commercialScopes || []).map((scope, idx) => (
                   <div
                     key={idx}
                     className="px-3 py-1.5 rounded-sm bg-[#1A1A1F] border border-white/10 text-[11px] font-medium text-white/70 flex items-center gap-1.5"
